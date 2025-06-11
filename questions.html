@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Answer Questions</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #f3f6fb, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 2.5rem 3rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 600px;
+    }
+
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+
+    p.intro {
+      color: #555;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .question-block {
+      display: none;
+    }
+
+    .question-block.active {
+      display: block;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      color: white;
+      background-color: #4285f4;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #3367d6;
+    }
+
+    .footer {
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>👋 Welcome, {{ user_name }}!</h2>
+    <p class="intro">Please answer the following questions:</p>
+
+    <form id="questionForm" action="/submit-answers" method="POST">
+      <input type="hidden" name="user_id" value="{{ user_id }}">
+
+      {% for field, template, question in questions %}
+        <div class="question-block {% if loop.first %}active{% endif %}">
+          <p>❓ {{ question }}</p>
+          <input type="text" name="answers" required>
+          <input type="hidden" name="fields" value="{{ field }}">
+          <input type="hidden" name="templates" value="{{ template }}">
+        </div>
+      {% endfor %}
+
+      <button type="button" id="nextBtn">Next</button>
+      <button type="submit" id="submitBtn" style="display: none;">Submit Answers</button>
+    </form>
+
+    <div class="footer">Your answers are securely processed</div>
+  </div>
+
+  <script>
+    const blocks = document.querySelectorAll('.question-block');
+    const nextBtn = document.getElementById('nextBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    let currentIndex = 0;
+
+    nextBtn.addEventListener('click', () => {
+      const input = blocks[currentIndex].querySelector('input[type="text"]');
+      if (!input.value.trim()) {
+        alert("Please answer the question before proceeding.");
+        return;
+      }
+
+      blocks[currentIndex].classList.remove('active');
+      currentIndex++;
+
+      if (currentIndex < blocks.length) {
+        blocks[currentIndex].classList.add('active');
+        if (currentIndex === blocks.length - 1) {
+          nextBtn.style.display = 'none';
+          submitBtn.style.display = 'block';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
